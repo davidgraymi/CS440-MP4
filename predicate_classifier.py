@@ -227,12 +227,9 @@ def preprocess_data(X: np.ndarray,
     if preprocessing is None:
         if normalize:
             # TODO(7.2): set mean and std to column statistics with shape (1, num_features)
-            print(X)
-            mean = np.mean(X, axis=0).reshape(1, 3)
-            print(mean)
-            # std = np.std(X, axis=1).reshape(1, 3)
-            std = np.sqrt(np.mean((X - mean) ** 2, axis=0).reshape(1, 3))
-            print(std)
+            mean = np.mean(X, axis=0, keepdims=True)
+            std = np.std(X, axis=0, keepdims=True)
+            std = np.where(std < 1e-8, 1.0, std)
         else:
             mean = None
             std = None
@@ -241,7 +238,7 @@ def preprocess_data(X: np.ndarray,
     transformed = np.asarray(X, dtype=float)
     if preprocessing.mean is not None:
         # TODO(7.2): set transformed to be the transformed features with shape (num_samples, num_features)
-        transformed = (X - preprocessing.mean) / preprocessing.std
+        transformed = (transformed - preprocessing.mean) / preprocessing.std
     bias = np.ones((transformed.shape[0], 1), dtype=transformed.dtype)
     return np.concatenate([transformed, bias], axis=1), preprocessing
 
