@@ -104,7 +104,7 @@ def stochastic_gradient_descent(get_batch_gradient: Callable[[np.ndarray, np.nda
         while i_high < max_batch:
             i_low += batch_size
             i_high = min(i_high + batch_size, max_batch)
-            A = A - learning_rate * get_batch_gradient(A, np.array([i_low, i_high]))
+            A = A - learning_rate * get_batch_gradient(A, np.arange(i_low, i_high))
     return A
 
 
@@ -234,24 +234,12 @@ def get_logistic_regression_gradient(A: np.ndarray, X: np.ndarray, y: np.ndarray
 # x has shape (num_samples, num_features)
 # Return features with shape (num_samples, num_modified_features)
 def get_logistic_regression_features(x: np.ndarray) -> np.ndarray:
-    # print(x.shape)
-    # feats_1d = np.stack([
-    #     np.mean(x, axis=1),
-    #     np.min(x, axis=1),
-    #     np.max(x, axis=1),
-    #     np.sum(x, axis=1),
-    #     np.linalg.norm(x, axis=1),
-    # ], axis=1)
-    # print(feats_1d.shape)
-    # feats_poly = np.concatenate([x ** p for p in range(5, -1, -1)], axis=1)
-    # print(feats_poly.shape)
-    pairwise_dots = x @ x.T
-    print(pairwise_dots.shape)
-    # design = np.concatenate([
-    #     x
-    #     # feats_poly,
-    #     # feats_1d,
-    #     pairwise_dots
-    # ], axis=1)
-    # print(design.shape)
-    return pairwise_dots
+    feats_poly = np.concatenate([x ** p for p in range(4, -1, -1)], axis=1)
+    outer = np.einsum('mi,mj->mij', x, x)
+    row, col = np.triu_indices(x.shape[1], k=1)
+    interactions = outer[:, row, col]
+    design = np.hstack([
+        interactions,
+        feats_poly,
+    ])
+    return design

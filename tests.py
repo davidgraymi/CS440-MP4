@@ -241,6 +241,7 @@ def test_get_logistic_regression_features() -> None:
         A_gd = gradient_descent(get_gradient, A_init, learning_rate=0.01, num_iterations=10000)
         y_pred = logistic_prediction(x, A_gd, get_features)
         final_error = logistic_error(y_pred, y)
+        print(final_error)
         assert final_error <= 0.1 # 90% accuracy
         
         # sgd
@@ -250,6 +251,7 @@ def test_get_logistic_regression_features() -> None:
                                             num_epochs=10000, data_size=x.shape[0], batch_size=20)
         y_pred = logistic_prediction(x, A_sgd, get_features)
         final_error = logistic_error(y_pred, y)
+        print(final_error)
         assert final_error <= 0.1 # 90% accuracy
 
 
