@@ -138,7 +138,7 @@ def get_polynomial_features(x: np.ndarray, degree: int) -> np.ndarray:
 # goal has shape (2,)
 # Return the distance from the end effector to the goal
 def ik_loss(arm: Arm, config: np.ndarray, goal: np.ndarray) -> float:
-    pass
+    return np.linalg.norm(arm.forward_kinematics(config)[-1] - goal)
 
 
 # we provide a more complex loss function that includes obstacles
@@ -171,7 +171,9 @@ def ik_loss_with_obstacles(arm: Arm, config: np.ndarray, goal: np.ndarray, obsta
 # Return directions with shape (num_samples, num_features)
 # Each direction should have unit norm
 def sample_directions(num_samples: int, num_features: int) -> np.ndarray:
-    pass
+    directions = np.random.normal(size=(num_samples, num_features))
+    norms = np.linalg.norm(directions, axis=1, keepdims=True)
+    return directions / norms
 
 
 # Estimate a local IK gradient direction by sampling
@@ -180,8 +182,14 @@ def sample_directions(num_samples: int, num_features: int) -> np.ndarray:
 # num_samples is the number of directions to sample
 # Return a unit vector with shape (num_features,)
 def estimate_ik_gradient(loss: Callable[[np.ndarray], float], config: np.ndarray, num_samples: int) -> np.ndarray:
-    pass
-
+    directions = sample_directions(num_samples, config.shape[0])
+    eps = 0.01
+    pos_config = config + directions * eps
+    neg_config = config - directions * eps
+    pl = np.array([loss(pc) for pc in pos_config])
+    nl = np.array([loss(nc) for nc in neg_config])
+    grad_dir = (pl - nl) @ directions
+    return grad_dir / np.linalg.norm(grad_dir)
 
 # -------------- logistic regression for provided data --------------
 
