@@ -227,7 +227,12 @@ def preprocess_data(X: np.ndarray,
     if preprocessing is None:
         if normalize:
             # TODO(7.2): set mean and std to column statistics with shape (1, num_features)
-            raise NotImplementedError("7.2: fit normalization statistics")
+            print(X)
+            mean = np.mean(X, axis=0).reshape(1, 3)
+            print(mean)
+            # std = np.std(X, axis=1).reshape(1, 3)
+            std = np.sqrt(np.mean((X - mean) ** 2, axis=0).reshape(1, 3))
+            print(std)
         else:
             mean = None
             std = None
@@ -236,7 +241,7 @@ def preprocess_data(X: np.ndarray,
     transformed = np.asarray(X, dtype=float)
     if preprocessing.mean is not None:
         # TODO(7.2): set transformed to be the transformed features with shape (num_samples, num_features)
-        raise NotImplementedError("7.2: apply normalization")
+        transformed = (X - preprocessing.mean) / preprocessing.std
     bias = np.ones((transformed.shape[0], 1), dtype=transformed.dtype)
     return np.concatenate([transformed, bias], axis=1), preprocessing
 
@@ -258,8 +263,11 @@ def compute_loss(weights: np.ndarray,
         positive_weights = np.ones(y.shape[1])
     pred = np.clip(np.asarray(predicate_prediction(X, weights), dtype=float), 1e-8, 1.0 - 1e-8)
     # TODO(7.1): compute elementwise BCE with shape (num_samples, num_predicates)
-    raise NotImplementedError("7.1: binary cross-entropy")
-    bce = 0.0
+    accum = 0
+    for i in range(y.shape[0]):
+        for j in range(y.shape[1]):
+            accum += y[i,j] * np.log(pred[i,j]) + (1 - y[i,j]) * np.log(1 - pred[i,j])
+    bce = - accum / X.shape[0]
     # TODO(7.4): account for positive_weights in your bce computation
     # TODO(7.3): compute the L1 penalty on non bias features (all rows except the last)
     penalty = 0.0
@@ -283,7 +291,7 @@ def compute_gradient(weights: np.ndarray,
         positive_weights = np.ones(y.shape[1])
     pred = predicate_prediction(X, weights)
     # TODO(7.1): replace the raise error below with gradient of shape (num_features + 1, num_predicates)
-    raise NotImplementedError("7.1: BCE gradient")
+    gradient = (X.T @ (pred - y)) / X.shape[0]
     # TODO(7.4): account for positive_weights in your bce computation
     # TODO(7.3): add the L1 gradient term to gradient[:-1] only
     return gradient
