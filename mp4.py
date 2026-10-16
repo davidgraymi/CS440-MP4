@@ -218,7 +218,7 @@ def logistic_prediction(x: np.ndarray, A: np.ndarray, get_modified_features: Cal
 # y_true has shape (num_samples, 1)
 # Return the logistic loss as a scalar
 def logistic_loss(y_pred: np.ndarray, y_true: np.ndarray) -> float:
-    pass
+    return np.min(np.sum(-y_true * np.log(y_pred) - (1 - y_true) * np.log(1 - y_pred)))
 
 
 # Compute the gradient of logistic regression loss
@@ -227,7 +227,7 @@ def logistic_loss(y_pred: np.ndarray, y_true: np.ndarray) -> float:
 # y has shape (num_samples, 1)
 # Return the gradient with the same shape as A
 def get_logistic_regression_gradient(A: np.ndarray, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-    pass
+    return X.T @ (logistic_prediction(X, A, lambda x: x) - y)
 
 
 # Create features for the logistic regression datasets
