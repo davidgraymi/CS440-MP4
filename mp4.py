@@ -234,4 +234,24 @@ def get_logistic_regression_gradient(A: np.ndarray, X: np.ndarray, y: np.ndarray
 # x has shape (num_samples, num_features)
 # Return features with shape (num_samples, num_modified_features)
 def get_logistic_regression_features(x: np.ndarray) -> np.ndarray:
-    pass
+    # print(x.shape)
+    # feats_1d = np.stack([
+    #     np.mean(x, axis=1),
+    #     np.min(x, axis=1),
+    #     np.max(x, axis=1),
+    #     np.sum(x, axis=1),
+    #     np.linalg.norm(x, axis=1),
+    # ], axis=1)
+    # print(feats_1d.shape)
+    # feats_poly = np.concatenate([x ** p for p in range(5, -1, -1)], axis=1)
+    # print(feats_poly.shape)
+    pairwise_dots = x @ x.T
+    print(pairwise_dots.shape)
+    # design = np.concatenate([
+    #     x
+    #     # feats_poly,
+    #     # feats_1d,
+    #     pairwise_dots
+    # ], axis=1)
+    # print(design.shape)
+    return pairwise_dots
