@@ -33,15 +33,14 @@ def get_simple_linear_features(x: np.ndarray) -> np.ndarray:
 # get_modified_features maps x to shape (num_samples, num_modified_features)
 # Return predictions with shape (num_samples, 1)
 def linear_prediction(x: np.ndarray, A: np.ndarray, get_modified_features: Callable[[np.ndarray], np.ndarray]) -> np.ndarray:
-    X = get_modified_features(x)
-    return np.dot(X, A)
+    return np.dot(get_modified_features(x), A)
 
 
 # Compute mean squared error
 # y_pred and y_true each have shape (num_samples, 1)
 # Return the mean squared error as a scalar
 def mse_loss(y_pred: np.ndarray, y_true: np.ndarray) -> float:
-    pass
+    return np.mean((y_pred - y_true) ** 2)
 
 
 # Compute the regression model loss on a dataset
