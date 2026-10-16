@@ -116,7 +116,10 @@ def stochastic_gradient_descent(get_batch_gradient: Callable[[np.ndarray, np.nda
 # noise is the max absolute noise added to y
 # Return x and y, each with shape (num_samples, 1)
 def create_sine_data(num_samples: int, x_range: list[float] = [0.0, 2*np.pi], noise: float = 0.1) -> tuple[np.ndarray, np.ndarray]:
-    pass
+    size = (num_samples, 1)
+    x = np.random.uniform(low=x_range[0], high=x_range[1], size=size)
+    e = np.random.uniform(low=-noise, high=noise, size=size)
+    return x, np.sin(x) + e
 
 
 # Transform inputs into polynomial features
@@ -124,7 +127,7 @@ def create_sine_data(num_samples: int, x_range: list[float] = [0.0, 2*np.pi], no
 # degree is the highest polynomial degree to include
 # Return features with shape (num_samples, num_features * (degree + 1))
 def get_polynomial_features(x: np.ndarray, degree: int) -> np.ndarray:
-    pass
+    return np.concatenate([x ** p for p in range(degree, -1, -1)], axis=1)
 
 
 # -------------- inverse kinematics via gradient descent --------------
