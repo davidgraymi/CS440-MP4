@@ -198,7 +198,9 @@ def estimate_ik_gradient(loss: Callable[[np.ndarray], float], config: np.ndarray
 # y_true has shape (num_samples, 1)
 # Return the average classification error as a scalar
 def logistic_error(y_pred: np.ndarray, y_true: np.ndarray) -> float:
-    pass
+    y_class = (y_pred > 0.5).astype(int)
+    y_diff = (y_class != y_true).astype(int)
+    return np.mean(y_diff)
 
 
 # Predict class probabilities with logistic regression
@@ -207,7 +209,8 @@ def logistic_error(y_pred: np.ndarray, y_true: np.ndarray) -> float:
 # get_modified_features maps x to shape (num_samples, num_modified_features)
 # Return predicted probabilities with shape (num_samples, 1)
 def logistic_prediction(x: np.ndarray, A: np.ndarray, get_modified_features: Callable[[np.ndarray], np.ndarray]) -> np.ndarray:
-    pass
+    z = get_modified_features(x) @ A
+    return 1 / (1 + np.e ** -z)
 
 
 # Compute logistic loss for binary classification
