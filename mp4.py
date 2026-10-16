@@ -58,7 +58,7 @@ def compute_model_error(x: np.ndarray, y: np.ndarray, A: np.ndarray, get_modifie
 # y has shape (num_samples, 1)
 # Return A with shape (num_modified_features, 1)
 def analytical_linear_regression(X: np.ndarray, y: np.ndarray) -> np.ndarray:
-    pass
+    return np.linalg.inv(X.T @ X) @ X.T @ y
 
 
 # -------------- gradient descent for linear regression --------------
@@ -69,7 +69,7 @@ def analytical_linear_regression(X: np.ndarray, y: np.ndarray) -> np.ndarray:
 # y has shape (num_samples, 1)
 # Return the gradient with the same shape as A
 def get_linear_regression_gradient(A: np.ndarray, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-    pass
+    return (2 / y.shape[0]) * X.T @ (X @ A - y)
 
 
 # Optimize parameters with gradient descent
@@ -79,7 +79,10 @@ def get_linear_regression_gradient(A: np.ndarray, X: np.ndarray, y: np.ndarray) 
 # num_iterations is the number of gradient descent updates
 # Return optimized parameters with the same shape as A_init
 def gradient_descent(get_gradient: Callable[[np.ndarray], np.ndarray], A_init: np.ndarray, learning_rate: float, num_iterations: int) -> np.ndarray:
-    pass
+    A = A_init
+    for _ in range(num_iterations):
+        A = A - learning_rate * get_gradient(A)
+    return A
 
 
 # -------------- stochastic gradient descent for linear regression --------------
@@ -93,7 +96,16 @@ def gradient_descent(get_gradient: Callable[[np.ndarray], np.ndarray], A_init: n
 # batch_size is the number of samples in each batch
 # Return optimized parameters with the same shape as A_init
 def stochastic_gradient_descent(get_batch_gradient: Callable[[np.ndarray, np.ndarray], np.ndarray], A_init: np.ndarray, learning_rate: float, num_epochs: int, data_size: int, batch_size: int) -> np.ndarray:
-    pass
+    A = A_init
+    max_batch = data_size - 1
+    for _ in range(num_epochs):
+        i_low = -batch_size
+        i_high = 0
+        while i_high < max_batch:
+            i_low += batch_size
+            i_high = min(i_high + batch_size, max_batch)
+            A = A - learning_rate * get_batch_gradient(A, np.array([i_low, i_high]))
+    return A
 
 
 # -------------- polynomial regression for sine function --------------
