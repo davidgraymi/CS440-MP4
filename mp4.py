@@ -13,14 +13,18 @@ from planar_arm import Arm
 # noise is the max absolute noise added to y
 # Return x and y, each with shape (num_samples, 1)
 def create_linear_data(num_samples: int, slope: float, intercept: float, x_range: list[float] = [-1.0, 1.0], noise: float = 0.1) -> tuple[np.ndarray, np.ndarray]:
-    pass
+    size = (num_samples, 1)
+    x = np.random.uniform(low=x_range[0], high=x_range[1], size=size)
+    e = np.random.uniform(low=-noise, high=noise, size=size)
+    y = slope * x + intercept + e
+    return x, y
 
 
 # Add a bias feature to the input data
 # x has shape (num_samples, num_features)
 # Return features with shape (num_samples, num_features + 1)
 def get_simple_linear_features(x: np.ndarray) -> np.ndarray:
-    pass
+    return np.concatenate((x, np.ones((x.shape[0], 1))), axis=1)
 
 
 # Predict outputs with a linear model
@@ -29,7 +33,8 @@ def get_simple_linear_features(x: np.ndarray) -> np.ndarray:
 # get_modified_features maps x to shape (num_samples, num_modified_features)
 # Return predictions with shape (num_samples, 1)
 def linear_prediction(x: np.ndarray, A: np.ndarray, get_modified_features: Callable[[np.ndarray], np.ndarray]) -> np.ndarray:
-    pass
+    X = get_modified_features(x)
+    return np.dot(X, A)
 
 
 # Compute mean squared error
