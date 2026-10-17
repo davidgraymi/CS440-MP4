@@ -260,14 +260,11 @@ def compute_loss(weights: np.ndarray,
         positive_weights = np.ones(y.shape[1])
     pred = np.clip(np.asarray(predicate_prediction(X, weights), dtype=float), 1e-8, 1.0 - 1e-8)
     # TODO(7.1): compute elementwise BCE with shape (num_samples, num_predicates)
-    accum = 0
-    for i in range(y.shape[0]):
-        for j in range(y.shape[1]):
-            accum += y[i,j] * np.log(pred[i,j]) + (1 - y[i,j]) * np.log(1 - pred[i,j])
-    bce = - accum / X.shape[0]
     # TODO(7.4): account for positive_weights in your bce computation
+    bce = -np.sum(positive_weights * y * np.log(pred) + (1 - y) * np.log(1 - pred)) / X.shape[0]
     # TODO(7.3): compute the L1 penalty on non bias features (all rows except the last)
-    penalty = 0.0
+    penalty = l1_lambda * np.sum(np.abs(weights[:-1]))
+    # penalty = 0.0
     return float(bce + penalty)
 
 
@@ -288,9 +285,11 @@ def compute_gradient(weights: np.ndarray,
         positive_weights = np.ones(y.shape[1])
     pred = predicate_prediction(X, weights)
     # TODO(7.1): replace the raise error below with gradient of shape (num_features + 1, num_predicates)
-    gradient = (X.T @ (pred - y)) / X.shape[0]
     # TODO(7.4): account for positive_weights in your bce computation
+    A = np.where(y == 1, positive_weights, 1.0)
+    gradient = (X.T @ (A * (pred - y))) / X.shape[0]
     # TODO(7.3): add the L1 gradient term to gradient[:-1] only
+    gradient[:-1] += l1_lambda * np.sign(weights[:-1])
     return gradient
 
 
@@ -303,4 +302,10 @@ def get_positive_weights(y: np.ndarray, positive_weight_power: float) -> np.ndar
     if positive_weight_power == 0.0:
         return np.ones(y.shape[1], dtype=float)
     # TODO(7.4): compute the negative-to-positive ratio as per the instructions
-    raise NotImplementedError("7.4: positive-label weights")
+    pos = np.sum(y == 1, axis=0)
+    neg = y.shape[0] - pos
+    return np.clip(
+        (neg / np.maximum(pos, 1.0)) ** positive_weight_power,
+        a_min=0.5,
+        a_max=20.0
+    )
